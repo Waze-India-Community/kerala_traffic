@@ -1,4 +1,3 @@
 requests
 pandas
-pytz
-supabase-py
+supabase
