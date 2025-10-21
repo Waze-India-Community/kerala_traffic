@@ -3,6 +3,7 @@ import json
 import requests
 import pandas as pd
 from supabase import create_client, Client
+from shapely.geometry import LineString
 
 # Bounding box for Kerala
 top = 12.22455530
@@ -28,6 +29,30 @@ df['published_ts']=pd.to_datetime(df['pubMillis'],unit='ms',origin='unix', utc=T
 # Filter for significant jams
 df2 = df[(df['level'] >= 1) & (df['length'] > 50)]
 
+#Linestring creation
+def list_to_wkt_linestring(coords_list):
+    """Converts a Python list of coordinate dictionaries into a WKT LINESTRING string."""
+    
+    if not isinstance(coords_list, list) or not coords_list:
+        return None
+    
+    try:
+        # 2. Extract coordinates as a list of (lon, lat) tuples
+        #    This step remains the same as it correctly handles the list structure:
+        coordinates = [(d['x'], d['y']) for d in coords_list]
+        
+        # 3. Create a shapely LineString object
+        line_obj = LineString(coordinates)
+        
+        # 4. Convert the object to WKT format
+        return line_obj.wkt
+    
+    except Exception as e:
+        # Handle cases where keys 'x' or 'y' are missing, etc.
+        print(f"Error processing coordinates: {e}")
+        return None
+df2['wkt_path'] = df2['line'].apply(list_to_wkt_linestring)
+
 # Format for Supabase
 input_list = []
 for idx, row in df2.iterrows():
@@ -41,7 +66,7 @@ for idx, row in df2.iterrows():
         "start_jn" : str(row['startNode']).replace("nan","").replace("Rd", "Road"),
         "end_jn" : str(row['endNode']).replace("nan","").replace("Rd", "Road"),
         "severity" : row['level'],
-        "line" : row['line'],
+        "line" : row['wkt_path'],
         "traffic_delay_calculated" : row['traffic_delay'],
         "delay" : row['delay'],
         "updated" : row['update_ts'].strftime('%Y%m%d%H%M%S'),
