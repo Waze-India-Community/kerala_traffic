@@ -22,6 +22,8 @@ df = pd.DataFrame(filtered)
 
 # Compute traffic severity and delay
 df['traffic_delay'] = (df['length'] / 1000) / df['speedKMH'] * 60
+df['update_ts']=pd.to_datetime(df['updateMillis'],unit='ms',origin='unix', utc=True).dt.tz_convert('Asia/Kolkata').dt.tz_localize(None)
+df['published_ts']=pd.to_datetime(df['pubMillis'],unit='ms',origin='unix', utc=True).dt.tz_convert('Asia/Kolkata').dt.tz_localize(None)
 
 # Filter for significant jams
 df2 = df[(df['level'] >= 1) & (df['length'] > 50)]
