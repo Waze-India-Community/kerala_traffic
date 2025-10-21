@@ -69,5 +69,5 @@ if input_list:
     response = supabase.table("kerala_traffic").upsert(input_list).execute()
 
 if loc_list:
-    response = supabase.table("kl_traffic_loc").upsert(input_list).execute()
+    response = supabase.table("kl_traffic_loc").upsert(loc_list).execute()
 
