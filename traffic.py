@@ -50,7 +50,7 @@ for idx, row in df2.iterrows():
 
 # for location info table 
 df_exploded=df2.explode('line')[['uuid','line']]
-df_exploded['line'] = df_exploded['line'].apply(lambda d : f"{d['x']},{d['y']}")
+df_exploded['line'] = df_exploded['line'].apply(lambda d : f"{d['y']},{d['x']}")
 loc_list =[]
 for idx, row in df_exploded.iterrows():
     cordlist={
